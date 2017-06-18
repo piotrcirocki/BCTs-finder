@@ -2,7 +2,7 @@ HelperClass <- function() {
   
   thisEnv <- environment()
   
-  dfR <- data.frame(chr = factor(), ID = integer(), pos = character(), flag = character(), mrnm = factor(), mpos = character(), 
+  dfR <- data.frame(chr = character(), ID = integer(), pos = character(), flag = character(), mrnm = character(), mpos = character(), 
                     countBuffer = integer(), treshold = integer(), isRelevant = logical(), dir = character(), stringsAsFactors = FALSE)
   
   
@@ -22,17 +22,18 @@ HelperClass <- function() {
       return(relevantElement)
     }, setAddNewRow = function(mydfRow) {
         newRow <- list()
-        newRow$chr = mydfRow$rname
+        newRow$chr = as.character(mydfRow$rname)
         newRow$ID = mydfRow$ID
         newRow$pos <- as.character(mydfRow$pos)
         newRow$flag <- as.character(mydfRow$flag)
-        newRow$mrnm = mydfRow$mrnm
+        newRow$mrnm = as.character(mydfRow$mrnm)
         newRow$mpos <- as.character(mydfRow$mpos)
-        newRow$dir <- mydfRow$rdir
         newRow$countBuffer = 0
+        newRow$countBuffer = as.integer(newRow$countBuffer)
         newRow$treshold = 1
+        newRow$treshold = as.integer(newRow$treshold)
         newRow$isRelevant = TRUE
-        #newRow[, c(3, 4, 6)] <- sapply(newRow[, c(3, 4, 6)], as.character)
+        newRow$dir <- mydfRow$rdir
         dfR =   dplyr::bind_rows(dfR,newRow)
         assign("dfR",dfR,thisEnv)
         # dfR = rbind(dfR, newRow)

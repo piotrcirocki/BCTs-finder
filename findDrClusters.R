@@ -26,7 +26,7 @@
 
 #library("formatR")
 #tidy_dir(path = ".", recursive = FALSE)
-
+#Sys.setenv(LANG = "en")
 
 library("Rsamtools")
 getwd()
@@ -59,7 +59,7 @@ run <- function(tresholdValue , countBufferValue, bamFilePath) {
     methodHelper <- HelperClass()
     i = 0
     
-    for (i in 1:100) {
+    for (i in 1:10) {
         row = mydf[i, ]
         # if 1st row
         if (i == 1) {
