@@ -1,29 +1,3 @@
-# TODO function search for discordant reads clusters
-
-# input - file with DRs output - data frame with DR clusters source('http://www.bioconductor.org/biocLite.R')
-#'wziac tylko discordant ready'
-# biocLite(c('Rsamtools'))
-
-# setwd('/Users/piotrcirocki/Downloads') getwd() browseVignettes('Rsamtools') library('Rsamtools') ?which <-
-# RangesList(seq1=IRanges(1000, 2000), seq2=IRanges(c(100, 1000), c(1000, 2000))) what <- c('rname', 'strand',
-# 'pos', 'qwidth', 'seq')
-
-# param <- ScanBamParam(which=which, what=what) param <- ScanBamParam(which=which, what=what) bamFile <-
-# system.file('extdata', 'ex1.bam', package='Rsamtools') Sample_R_1510_MP5_1791_15_S8.bwa.bam bamFile <-
-# system.file('Sample_R_1510_MP5_1791_15_S8.bwa.bam') bam <- scanBam(bamFile, param=param) bam
-
-# bamFile
-
-# findDrClusters <- function(){
-
-# }
-
-# ?system.file
-
-# treshold - how many reads means that reads are in the same area
-
-# chr rdir po ost ilosc odczytow poz mate chr mate
-
 #library("formatR")
 #tidy_dir(path = ".", recursive = FALSE)
 #Sys.setenv(LANG = "en")
@@ -35,31 +9,36 @@ source("setConfiguration.R")
 source("setAdditionalMethods.R")
 
 setwd("/Users/piotrcirocki/Downloads")
-library("formatR")
+#library("formatR")
 library("dplyr")
-tidy_dir(path = ".", recursive = FALSE)
+#tidy_dir(path = ".", recursive = FALSE)
 
+#> a <- list(0)
+#> a <- list(a, 5)
+#> a <- list(a, 6)
 
 tresholdValue = 3  #wartosc oznaczająca, próg przy jakim wartość jest zaliczana jako grupa
 countBufferValue = 3  # wartość do jakiej może wystąpić bład w nieprawidlowych readach
 bamFilePath = "/Users/piotrcirocki/Downloads/Sample_R_1510_MP5_1791_15_S8.bwa.bam"
-
+startSearachIndex = 1
+endIndex = 100
 
 browser()
 #debug(run)
 #run
-configuration <- ConfigurationInitializer()
-configuration$setConfiguration("/Users/piotrcirocki/Downloads/Sample_R_1510_MP5_1791_15_S8.bwa.bam")
-mydf = configuration$getConfiguration()
+startIndex = 1
+endIndex = 20
 
-#main loop algorithm
-run <- function(tresholdValue , countBufferValue, bamFilePath) {
+run <- function(tresholdValue , countBufferValue, bamFilePath, startIndex, endIndex) {
     #loading configuration
-   
+  configuration <- ConfigurationInitializer()
+  configuration$setConfiguration(bamFilePath)
+  mydf = configuration$getConfiguration()
+  
     methodHelper <- HelperClass()
     i = 0
     
-    for (i in 1:10) {
+    for (i in startIndex:endIndex) {
         row = mydf[i, ]
         # if 1st row
         if (i == 1) {
@@ -71,14 +50,12 @@ run <- function(tresholdValue , countBufferValue, bamFilePath) {
             relevantElement = methodHelper$getAndFindRelevantElements(as.character(row$rname), as.character(row$rdir), as.character(row$mrnm))
             #if any in DataFrame
             if (nrow(relevantElement) > 0) {
-              
                 methodHelper$setAddRowToExistingElement(relevantElement, relevantElement$ID)
-               
                 methodHelper$setCountForWrongRecords(relevantElement$ID)
                 methodHelper$setElementsToNonRelevant(countBufferValue)
             
                 }
-            else{
+            else {
               methodHelper$setAddNewRow(row)
             }
         }
@@ -89,5 +66,5 @@ run <- function(tresholdValue , countBufferValue, bamFilePath) {
 
 debug(run)
 
-run(tresholdValue , countBufferValue , bamFilePath)
+run(tresholdValue , countBufferValue , bamFilePath, startIndex, endIndex)
 
