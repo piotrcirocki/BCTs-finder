@@ -1,7 +1,7 @@
-#library("formatR")
-#tidy_dir(path = ".", recursive = FALSE)
-#Sys.setenv(LANG = "en")
+#dodać wiersze jako pojedyncze wpisy - dodać po prostu ID
+#wybierać wiersze, po trzech atrybutach
 
+sink(stdout(), type="message")
 library("Rsamtools")
 getwd()
 setwd("/Users/piotrcirocki/Documents/github/BCT")
@@ -27,14 +27,14 @@ browser()
 #debug(run)
 #run
 startIndex = 1
-endIndex = 20
+endIndex = 10
+#configuration <- ConfigurationInitializer()
+#configuration$setConfiguration(bamFilePath)
+#configuration$getConfiguration()
+mydf = readRDS(file="data.Rda")
 
 run <- function(tresholdValue , countBufferValue, bamFilePath, startIndex, endIndex) {
-    #loading configuration
-  configuration <- ConfigurationInitializer()
-  configuration$setConfiguration(bamFilePath)
-  mydf = configuration$getConfiguration()
-  
+#loading configuration
     methodHelper <- HelperClass()
     i = 0
     
@@ -53,14 +53,12 @@ run <- function(tresholdValue , countBufferValue, bamFilePath, startIndex, endIn
                 methodHelper$setAddRowToExistingElement(relevantElement, relevantElement$ID)
                 methodHelper$setCountForWrongRecords(relevantElement$ID)
                 methodHelper$setElementsToNonRelevant(countBufferValue)
-            
                 }
             else {
               methodHelper$setAddNewRow(row)
             }
         }
     }
-    
     print(methodHelper$getDfR())
 }
 
