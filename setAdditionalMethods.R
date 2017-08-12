@@ -3,7 +3,7 @@ HelperClass <- function() {
   thisEnv <- environment()
   
   dfR <- data.frame(chr = character(), ID = integer(), pos = character(), flag = character(), mrnm = character(), mpos = character(), 
-                    countBuffer = integer(), treshold = integer(), isRelevant = logical(), dir = character(), stringsAsFactors = FALSE)
+                    countBuffer = integer(), treshold = integer(), isRelevant = logical(), dir = character(), stringsAsFactors = FALSE, absolutePosition = integer())
   
   mutate_cond <- function(.data, condition, ..., envir = parent.frame()) {
     condition <- eval(substitute(condition), .data, envir)
@@ -26,12 +26,17 @@ HelperClass <- function() {
                newRow$countBuffer = 0
                newRow$countBuffer = as.integer(newRow$countBuffer)
                newRow$treshold = mydfRow$treshold
+               newRow$absolutePosition = mydfRow$absolutePosition
                newRow$isRelevant = TRUE
                newRow$dir <- mydfRow$dir
                dfR =   dplyr::bind_rows(dfR,newRow)
                assign("dfR",dfR,thisEnv)
-             }, getAndFindRelevantElements = function(chromName, findDir, mrnrmEl) {
-               dfR %>% filter(isRelevant == TRUE, chr == chromName, dir == findDir , mrnm == mrnrmEl)   %>%  filter(row_number()==1 ) -> relevantElement
+             }, getAndFindRelevantElements = function(chromName, findDir, mrnrmEl, actualPosition, numberOfBases) {
+               dfR %>% filter(isRelevant == TRUE, chr == chromName, dir == findDir , mrnm == mrnrmEl,  (absolutePosition - as.integer(actualPosition)) <= numberOfBases )  %>%  filter(row_number()==1 ) -> relevantElement
+               #sprawdzic w warunku czy roznica pozycji < 10000 
+               #chodzi o wartos bezwzgledna
+               # actualPosition to pozycja wyszukanego rekordu w mydf
+               # absolutePosition absolute posiotion to wyszukiwanie pozycji absolutniej w moim dfR
                
                #dfR %>% mutate_cond((isRelevant == TRUE & chr == chromName & dir == findDir & mrnm == mrnrmEl), treshold =  treshold +1) -> dfR %>%  filter(row_number()==1 ) -> relevantElement
                return(relevantElement)
@@ -52,6 +57,7 @@ HelperClass <- function() {
                newRow$countBuffer = 0
                newRow$countBuffer = as.integer(newRow$countBuffer)
                newRow$treshold = 1
+               newRow$absolutePosition = mydfRow$pos
                #newRow$treshold = as.integer(newRow$treshold)
                newRow$isRelevant = TRUE
                newRow$dir <- mydfRow$rdir
