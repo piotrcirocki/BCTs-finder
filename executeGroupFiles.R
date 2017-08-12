@@ -1,9 +1,13 @@
 executeGroupFiles = function(){
   
   groupManager <- GroupFilesManager()
-  dataFrame = groupManager$getDataFrame()
+  groupManager$getDataFrame()
   groupManager$setNewColumn()
   groupManager$findGroupsInChromosonmes(5000)
+  groupManager$getDataFrameWithGroups()
 }
+
+browser()
+debug(executeGroupFiles())
 
 executeGroupFiles()

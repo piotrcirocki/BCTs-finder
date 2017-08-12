@@ -11,7 +11,7 @@
 
 
 GroupFilesManager <- function() {
-  
+  library("dplyr")
   thisEnv <- environment()
   
   dfRame <- data.frame(chr = character(), ID = integer(), pos = character(), flag = character(), mrnm = character(), mpos = character(), 
@@ -40,14 +40,17 @@ GroupFilesManager <- function() {
                assign("dfRame",dfRame,thisEnv)
                return(dfRame)
              },
-             setNewColumn = funciton(){
+             setNewColumn = function(){
                
-               dplyr::mutate(dfRame, visited = FALSE)
+               dfRame =  dplyr::mutate(dfRame, visited = FALSE)
+               assign("dfRame",dfRame,thisEnv)
+               #return(dfRame)
              },
              
              findGroupsInChromosonmes = function(userDefinedPostion){
-               actDf = dfRame[i,]
+               
                for (i in 1: nrow(dfRame)) {
+                 actDf = dfRame[i,]
                  # dfRElement = 
                  if(actDf$visited == TRUE){
                    next
@@ -55,8 +58,11 @@ GroupFilesManager <- function() {
                  
                  if(actDf$dir == "F"){
                    #dfR %>% filter( chr == actDf$chr, dir == actDf$dir , mrnm == actDf$mrnm ,  )  %>%  filter(row_number()==1 ) -> relevantElement
-                   dfRame %>% filter( chr == actDf$chr, dir == "R" , mrnm == actDf$mrnm , (actDf$pos - dfRame$pos)  <= 2000)  %>%  filter(row_number()==1 ) -> relevantElementGroup
+                   dfRame %>% filter( chr == actDf$chr, dir == "R" , mrnm == actDf$mrnm , (   as.integer(actDf$pos) - as.integer(dfRame$pos)   )  <= 2000)  %>%  filter(row_number()==1 ) -> relevantElementGroup
                    element  <- relevantElementGroup[which.max(relevantElementGroup$pos),]
+                   if(nrow(element)==0){
+                     next
+                   }
                    newRow <- list()
                    newRow$chrSymbol1 = element$chr
                    newRow$mrnm1 = element$mrnm
@@ -65,7 +71,7 @@ GroupFilesManager <- function() {
                    newRow$dir1 = element$dir  # dir1 zawsze niech będzie revers
                    newRow$dir2 = actDf$dir
                    newRow$chr1Pos = element$pos
-                   newRow$chr2Pos = as.character(as.integer(actDf$pos + userDefinedPostion))
+                   newRow$chr2Pos = as.character(as.integer(actDf$pos) + userDefinedPostion)
                    #ctrl + shift + m
                    dfRame %>% mutate_cond((ID == actDf$ID), visited = TRUE) -> dfRame
                    dfRame %>% mutate_cond((ID == element$ID), visited = TRUE) -> dfRame
@@ -90,9 +96,11 @@ GroupFilesManager <- function() {
                  }
                  
                  if(actDf$dir == "R"){
-                   dfRame %>% filter( chr == actDf$chr, dir == "F" , mrnm == actDf$mrnm , ( dfRame$pos - actDf$pos )  <= 2000)  %>%  filter(row_number()==1 ) -> relevantElementGroup
+                   dfRame %>% filter( chr == actDf$chr, dir == "F" , mrnm == actDf$mrnm , ( as.integer(dfRame$pos) - as.integer(actDf$pos) )  <= 2000)  %>%  filter(row_number()==1 ) -> relevantElementGroup
                    element  <- relevantElementGroup[which.min(relevantElementGroup$pos),]
-                   
+                   if(nrow(element)==0){
+                     next
+                   }
                    newRow <- list()
                    newRow$chrSymbol1 = actDf$chr
                    newRow$mrnm1 = actDf$mrnm
@@ -145,7 +153,7 @@ GroupFilesManager <- function() {
              },
              
              getDataFrameWithGroups = function(){
-               assign("dfRameNewWithGroups",dfR,thisEnv)
+               assign("dfRameNewWithGroups",dfRameNewWithGroups,thisEnv)
                return(get("dfRameNewWithGroups",thisEnv))
                
              }
@@ -158,3 +166,4 @@ GroupFilesManager <- function() {
   class(me) <- append(class(me),"GroupFilesManager")
   return(me)
 }
+

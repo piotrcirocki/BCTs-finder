@@ -82,7 +82,7 @@ run <- function(tresholdValue , countBufferValue, bamFilePath, startIndex, endIn
 
 debug(run)
 startIndex = 1
-endIndex = 100
+endIndex = 10000
 run(tresholdValue , countBufferValue , bamFilePath, startIndex, endIndex, numberOfBases)
 #todo dodać nowe informacje do nowych rekordów, nie stare.
 #odsiać tylko te z przekroczonym  treshold 
