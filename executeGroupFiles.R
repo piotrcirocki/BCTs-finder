@@ -3,7 +3,7 @@ executeGroupFiles = function(){
   groupManager <- GroupFilesManager()
   groupManager$getDataFrame()
   groupManager$setNewColumn()
-  groupManager$findGroupsInChromosonmes(5000)
+  groupManager$findGroupsInChromosonmes(5000, 5000)
   groupManager$getDataFrameWithGroups()
 }
 

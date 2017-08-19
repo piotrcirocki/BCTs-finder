@@ -6,7 +6,7 @@
 #b najdlaszy revers z grupy i najwczesniejszy forward
 
 
-#wziąc opcję -> read jeden wcześniej dla reversa, jeden poniej dla forwarda
+#wziąc opcję -> read jeden wcześniej dla reversa, jeden pozniej dla forwarda
 
 
 
@@ -18,10 +18,14 @@ GroupFilesManager <- function() {
                        countBuffer = integer(), treshold = integer(), isRelevant = logical(), dir = character(), stringsAsFactors = FALSE, absolutePosition = integer())
   #chr1  mrnm1 chr2 mrnm2 #R1 #F1 #pos #pos + userValue 
   
-  dfRameNewWithGroups <- data.frame(chrSymbol1 = character(), mrnm1 = character(), chrSymbol2 = character(), mrnm2 = character(), dir1 = character(),
-                                    dir2 = character(), chr1Pos = character(),chr2Pos = character(),
+#  dfRameNewWithGroups <- data.frame(chrSymbol1 = character(), mrnm1 = character(), chrSymbol2 = character(), mrnm2 = character(), dir1 = character(),
+#                                   dir2 = character(), chr1Pos = character(),chr2Pos = character(),
+#                                  stringsAsFactors = FALSE)
+  dfRameNewWithGroups <- data.frame(chrSymbol1 = character(), mrnm1 = character(),dir1 = character(), chr1Pos = character(), chrSymbol2 = character(), mrnm2 = character(), 
+                                     dir2 = character(),chr2Pos = character(),
                                     stringsAsFactors = FALSE)
-  
+    
+    
   mutate_cond <- function(.data, condition, ..., envir = parent.frame()) {
     condition <- eval(substitute(condition), .data, envir)
     .data[condition, ] <- .data[condition, ] %>% mutate(...)
@@ -47,7 +51,7 @@ GroupFilesManager <- function() {
                #return(dfRame)
              },
              
-             findGroupsInChromosonmes = function(userDefinedPostion){
+             findGroupsInChromosonmes = function(userDefinedPostion, positionInPairDistance){
                
                for (i in 1: nrow(dfRame)) {
                  actDf = dfRame[i,]
@@ -57,8 +61,8 @@ GroupFilesManager <- function() {
                  }
                  
                  if(actDf$dir == "F"){
-                   #dfR %>% filter( chr == actDf$chr, dir == actDf$dir , mrnm == actDf$mrnm ,  )  %>%  filter(row_number()==1 ) -> relevantElement
-                   dfRame %>% filter( chr == actDf$chr, dir == "R" , mrnm == actDf$mrnm , (   as.integer(actDf$pos) - as.integer(dfRame$pos)   )  <= 2000)  %>%  filter(row_number()==1 ) -> relevantElementGroup
+                 
+                   dfRame %>% filter( chr == actDf$chr, dir == "R" , mrnm == actDf$mrnm , (   as.integer(actDf$pos) - as.integer(dfRame$pos)   )  <= positionInPairDistance, (   as.integer(actDf$pos) - as.integer(dfRame$pos)   )  > 0) -> relevantElementGroup
                    element  <- relevantElementGroup[which.max(relevantElementGroup$pos),]
                    if(nrow(element)==0){
                      next
@@ -66,12 +70,16 @@ GroupFilesManager <- function() {
                    newRow <- list()
                    newRow$chrSymbol1 = element$chr
                    newRow$mrnm1 = element$mrnm
+                   newRow$dir1 = element$dir  # dir1 zawsze niech będzie revers
+                   newRow$chr1Pos = element$pos
+                   
+                   
                    newRow$chrSymbol2 = actDf$chr
                    newRow$mrnm2 = actDf$mrnm
-                   newRow$dir1 = element$dir  # dir1 zawsze niech będzie revers
                    newRow$dir2 = actDf$dir
-                   newRow$chr1Pos = element$pos
                    newRow$chr2Pos = as.character(as.integer(actDf$pos) + userDefinedPostion)
+                   
+                   
                    #ctrl + shift + m
                    dfRame %>% mutate_cond((ID == actDf$ID), visited = TRUE) -> dfRame
                    dfRame %>% mutate_cond((ID == element$ID), visited = TRUE) -> dfRame
@@ -96,7 +104,7 @@ GroupFilesManager <- function() {
                  }
                  
                  if(actDf$dir == "R"){
-                   dfRame %>% filter( chr == actDf$chr, dir == "F" , mrnm == actDf$mrnm , ( as.integer(dfRame$pos) - as.integer(actDf$pos) )  <= 2000)  %>%  filter(row_number()==1 ) -> relevantElementGroup
+                   dfRame %>% filter( chr == actDf$chr, dir == "F" , mrnm == actDf$mrnm , ( as.integer(dfRame$pos) - as.integer(actDf$pos) )  <= positionInPairDistance  ,( as.integer(dfRame$pos) - as.integer(actDf$pos) > 0) )-> relevantElementGroup
                    element  <- relevantElementGroup[which.min(relevantElementGroup$pos),]
                    if(nrow(element)==0){
                      next
@@ -104,17 +112,16 @@ GroupFilesManager <- function() {
                    newRow <- list()
                    newRow$chrSymbol1 = actDf$chr
                    newRow$mrnm1 = actDf$mrnm
+                   newRow$dir1 = actDf$dir  # dir1 zawsze niech będzie revers
+                   newRow$chr1Pos = actDf$pos
+                   
+                   newRow$chr2Pos = element$pos
+                   newRow$dir2 = element$dir
                    newRow$chrSymbol2 = element$chr
                    newRow$mrnm2 = element$mrnm
-                   newRow$dir1 = element$dir  # dir1 zawsze niech będzie revers
-                   newRow$dir2 = element$dir
-                   newRow$chr1Pos = actDf$pos
-                   newRow$chr2Pos = element$pos
                    
-                   #ctrl + shift + m
                    dfRame %>% mutate_cond((ID == actDf$ID), visited = TRUE) -> dfRame
                    dfRame %>% mutate_cond((ID == element$ID), visited = TRUE) -> dfRame
-                   
                    dfRameNewWithGroups =   dplyr::bind_rows(dfRameNewWithGroups,newRow)
                    assign("dfRameNewWithGroups",dfRameNewWithGroups,thisEnv)
                    assign("dfRame",dfRame,thisEnv)
