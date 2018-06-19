@@ -1,0 +1,11 @@
+Package: BCT
+Title: BCTs-finder
+Version: 0.0.0.9000
+Authors@R: person("Piotr Cirocki", "Victor Murcia", email = "p.cirocki@gmail.com", role = c("aut", "cre"))
+Description: Package finds similar sequnces and groups with break predictions in human genome.
+Depends: R (>= 3.3.3)
+License: MIT
+Imports: dtplyr (>= 0.0.2), Rsamtools (>= 1.26.2), base (>= 3.3.3), magrittr (>= 1.5), dplyr (>= 0.4.2),
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
